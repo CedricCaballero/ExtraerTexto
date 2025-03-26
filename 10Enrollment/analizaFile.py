@@ -16,6 +16,8 @@ import glob
 from decimal import Decimal, getcontext
 import fitz  # PyMuPDF
 import pandas as pd
+import comparaFirma
+
 
 
 #************Ruta Ruta *******************
@@ -27,14 +29,14 @@ arrayIdentificacion = ['INSTITUTO NACIONAL ELECTORAL','ELECTORAL','VOTAR','CREDE
 arrayDomicilio = ['CFE','Suministrador','Servicios Básicos','Electricidad','Comisión Federal']
 arrayCurp = ['SEGOB','ESTADOS UNIDOS MEXICANOS','CONSTANCIA','CLAVE','ÚNICA','Clave:']
 arrayNSS = ['Instiluto Mexicano del Seguro Sucial','Seguro','Sucial','Social','IMSS','Curp']
-arrayAvisoEnrrollment = ['AVISO','PRIVACIDAD','COMUNICACIONES  DIGITALES','IV.','Consentimiento','Posesión','Huellas']
+arrayAvisoEnrrollment = ['VISO','AVISO','PRIVACIDAD','COMUNICACIONES  DIGITALES','IV.','Consentimiento','Posesión','Huellas']
 #************Array de cada uno de los elementos para identificar y extraer el dato*********************
 datosNSS = ['AAAA','Número de Seguridad Social:']
 datosCURP = ['Clave:','REGISTRO NACIONAL DE POBLACIÓN']
 datosDomicilio = ['TOTAL A PAGAR:','Comisión Federal de Electricidad']
 datosIdentifiacion = ['NOMBRE','FECHA DE NACIMIENTO']
-datosAviso1 = ['Huellas','Yo;']
-datosAviso2 = ['VI. Medios y procedimiento para revocar el consentimiento y ejercer','Nombre:']
+datosAviso1 = ['Consentimiento','fotografia','Huellas','Yo;']
+datosAviso2 = ['Firma:','Fecha:']
 
 
 
@@ -61,7 +63,7 @@ diccionario_Prueba = {
     'Domicilio': 'Privada Malva Oriente Mz9 Lt6, Tizara Town, C.P. 43816, Tizayuca, Hidalgo.',
     'Identifiacion': 'Cedric Omar Caballero Bautista',
     'Aviso':'Cedric Omar Caballero Bautista',
-    'Aviso2':'03/03/2025'
+    'Aviso2':'25/03/2025'
 }
 #************OCR ************************
 pytesseract.pytesseract.tesseract_cmd = r'C:\tesseract\tesseract.exe'
@@ -75,9 +77,10 @@ def readImage(image):
      results = reader.readtext(image)
      #printResults(results)
      #exit()
-     return results;
+     return results
 def readImageTesseract(image):
      return  pytesseract.image_to_string(image,lang='spa',config=custom_config)
+
 def printResults(results):
     for bbox,text,prob in results:
         print(f'{text}:{prob}')
@@ -204,6 +207,8 @@ def datoRequerido(resultClasificacion,resultText,img):
                         break
                     banImpar += 1
                 else:
+                    #print(cont2)
+                    #print(txt)
                     if resultClasificacion[0] == 'Aviso':
                         #print('ban:',banImpar)
                         if(banImpar == 1):
@@ -217,18 +222,18 @@ def datoRequerido(resultClasificacion,resultText,img):
                             posicionTextoCoor.append(y)
                             #****************************
                         banImpar += 1
-                        if cont2 >= 8:
+                        if cont2 >= 5:
                             cont = 0
                             break
-                        if cont2 >= 2 and cont2 != 3 and cont2 != 4:
-                            ##print(txt)
+                        #if cont2 >= 2 and cont2 != 3 and cont2 != 4:
+                        if cont2 >= 2:
+                            #print('Entro acá')
                             valorResultado.append([txt,redondeo_personalizado(prob * 100, 2)])
                             #valorResultado.append(redondeo_personalizado(prob * 100, 2))
                             cont2 += 1
                         else:
                             if cont2 >= 2:
                                 cont2 += 1
-                        
                         if txt in datos_diccionario.get('Aviso2'):
                             boxAux.append(bbox)
                             cont2 += 1
@@ -282,23 +287,29 @@ def pdf_to_images(pdf_path,nombre,output_folder):
             # Convierte la página a una imagen
             img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
             resIma = imagen_gris(img)
+            '''cv2.imshow("Imagen con Rectángulo", resIma)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()'''
             resultText = readImage(resIma)
             resultClasificacion = clasificar_documento(resultText)
-            #print(resultClasificacion)
             datos = datoRequerido(resultClasificacion=resultClasificacion,resultText=resultText,img=img)
             datosReturn.append(resultClasificacion[0])
             datosReturn.append(datos)
 
             # Guarda la imagen
             #img.save(f"{output_folder}\\{nombre}_page_{page_number + 1}.png")
+            #exit()
     return datosReturn
     
 #*****************Comparar extraccion con referencia***********
 def actualizar_estatus(row):
-    if row['Referencia'].strip() == row['Extracción'].strip():
-        return 'Aceptado'
+    if row['Referencia'].strip() != 'FIRMA':
+        if row['Referencia'].strip() == row['Extracción'].strip():
+            return 'Aceptado'
+        else:
+            return 'Rechazado'
     else:
-        return 'Rechazado'
+        return row['Estatus'].strip()
 
 #******************Inicia el proceso *******************
 archivos = listar_archivos(ruta+r'\documentosE')
@@ -325,13 +336,16 @@ estatus = []
 fecha = ''
 proba = 0
 for res in todosResultados:
+    #print(res)
     if (res[0] == 'Aviso'):
         index = 0
+        #print(res[1])
         for val in res[1]:
-            if index > 1:
+            #print(val)
+            if index >= 1:
                 fecha += val[0] +'/'
                 proba += val[1]
-            else:
+            if index == 0:
                 doc.append(res[0])
                 referencia.append(diccionario_Prueba.get(res[0],[]))
                 extraccion.append(val[0])
@@ -341,7 +355,7 @@ for res in todosResultados:
                 else:
                     estatus.append('Rechazado')
                 #print(val)
-            if index == 4:
+            if index == 3:
                 doc.append(res[0])
                 referencia.append(diccionario_Prueba.get('Aviso2'))
                 extraccion.append(fecha.rstrip('/'))
@@ -361,6 +375,16 @@ for res in todosResultados:
             estatus.append('Aprovado')
         else:
             estatus.append('Rechazado')
+
+resultFirma = comparaFirma.main()
+doc.append('Aviso')
+referencia.append('FIRMA')
+extraccion.append(resultFirma[1])
+presicion.append(resultFirma[0])
+if resultFirma[1] == 'Valida':
+    estatus.append('Aceptado')
+else:
+    estatus.append('Rechazado')
 
 conjuntoDatos = {
     'Documento':doc,

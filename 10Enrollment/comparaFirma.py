@@ -28,7 +28,7 @@ def redimensionar_imagenes(carpeta, ancho, alto):
             # Guardar la imagen redimensionada en la carpeta de imágenes redimensionadas
             ruta_guardado = os.path.join(carpeta_redimensionada, archivo)
             cv2.imwrite(ruta_guardado, imagen_redimensionada)
-            print(f'Imagen {archivo} redimensionada y guardada en {ruta_guardado}')
+            #print(f'Imagen {archivo} redimensionada y guardada en {ruta_guardado}')
 
 # Ejemplo de uso
 '''carpeta_imagenes = './imagen'
@@ -40,54 +40,58 @@ exit()'''
 def convertir_a_rgb(imagen):
     return cv2.cvtColor(imagen,  cv2.COLOR_GRAY2RGB)
 
-# Cargar las imágenes de las firmas
-firma1 = cv2.imread(r'.\imagen\redimensionadas\fcf2.jpeg', cv2.IMREAD_GRAYSCALE)
-firma2 = cv2.imread(r'.\imagen\redimensionadas\fcf2.jpeg', cv2.IMREAD_GRAYSCALE)
+def main():
+    # Cargar las imágenes de las firmas
+    firma1 = cv2.imread(r'.\imagen\redimensionadas\fcf3.jpeg', cv2.IMREAD_GRAYSCALE)
+    firma2 = cv2.imread(r'.\imagen\redimensionadas\fcf2.jpeg', cv2.IMREAD_GRAYSCALE)
 
-# Convertir la imagen a RGB
-firma1_rgb = convertir_a_rgb(firma1)
-firma2_rgb = convertir_a_rgb(firma2)
-# Binarizar las imágenes
-#_, firma1_bin = cv2.threshold(firma1, 127, 255, cv2.THRESH_BINARY)
-#_, firma2_bin = cv2.threshold(firma2, 127, 255, cv2.THRESH_BINARY)
-
-
-
-# Cargar el modelo preentrenado VGG16 sin la capa superior (clasificación)
-modelo = VGG16(include_top=False, input_shape=(224, 224, 3))
-
-# Redimensionar las imágenes a 224x224 píxeles y convertirlas a un array
-firma1_resized = cv2.resize(firma1_rgb, (224, 224))
-firma2_resized = cv2.resize(firma2_rgb, (224, 224))
-firma1_array = img_to_array(firma1_resized)
-firma2_array = img_to_array(firma2_resized)
-
-# Añadir una dimensión extra para representar el batch size (1 imagen por batch)
-firma1_array = tf.expand_dims(firma1_array, axis=0)
-firma2_array = tf.expand_dims(firma2_array, axis=0)
-
-# Extraer las características
-caracteristicas_firma1 = modelo.predict(firma1_array)
-caracteristicas_firma2 = modelo.predict(firma2_array)
+    # Convertir la imagen a RGB
+    firma1_rgb = convertir_a_rgb(firma1)
+    firma2_rgb = convertir_a_rgb(firma2)
+    # Binarizar las imágenes
+    #_, firma1_bin = cv2.threshold(firma1, 127, 255, cv2.THRESH_BINARY)
+    #_, firma2_bin = cv2.threshold(firma2, 127, 255, cv2.THRESH_BINARY)
 
 
 
+    # Cargar el modelo preentrenado VGG16 sin la capa superior (clasificación)
+    modelo = VGG16(include_top=False, input_shape=(224, 224, 3))
 
-distancia = euclidean(caracteristicas_firma1.flatten(), caracteristicas_firma2.flatten())
-print(distancia)
-# Normalizar la distancia y calcular el porcentaje de similitud
-max_distancia = 1000  # Define un valor máximo para la distancia
-porcentaje_similitud = max(0, 100 - (distancia / max_distancia) * 100)
+    # Redimensionar las imágenes a 224x224 píxeles y convertirlas a un array
+    firma1_resized = cv2.resize(firma1_rgb, (224, 224))
+    firma2_resized = cv2.resize(firma2_rgb, (224, 224))
+    firma1_array = img_to_array(firma1_resized)
+    firma2_array = img_to_array(firma2_resized)
 
-print(f"Porcentaje de similitud: {porcentaje_similitud:.2f}%")
+    # Añadir una dimensión extra para representar el batch size (1 imagen por batch)
+    firma1_array = tf.expand_dims(firma1_array, axis=0)
+    firma2_array = tf.expand_dims(firma2_array, axis=0)
 
-umbral = 1000  # Umbral de distancia para determinar si las firmas son similares
-if distancia < umbral:
-    print("Las firmas son similares.")
-else:
-    print("Las firmas son diferentes.")
+    # Extraer las características
+    caracteristicas_firma1 = modelo.predict(firma1_array)
+    caracteristicas_firma2 = modelo.predict(firma2_array)
 
-cv2.imshow('Firma 1', firma1_rgb)
-cv2.imshow('Firma 2', firma2_rgb)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+    distancia = euclidean(caracteristicas_firma1.flatten(), caracteristicas_firma2.flatten())
+    #print(distancia)
+    # Normalizar la distancia y calcular el porcentaje de similitud
+    max_distancia = 1000  # Define un valor máximo para la distancia
+    porcentaje_similitud = max(0, 100 - (distancia / max_distancia) * 100)
+    resultado = []
+    resultado.append(f'{porcentaje_similitud:.2f}%')
+    #print(f"Porcentaje de similitud: {porcentaje_similitud:.2f}%")
+
+    umbral = 1000  # Umbral de distancia para determinar si las firmas son similares
+    resSimilares = ''
+    if distancia < umbral:
+        resSimilares = 'Valida'
+        #print("Las firmas son similares.")
+    else:
+        resSimilares = 'Invalida'
+        #print("Las firmas son diferentes.")
+    resultado.append(resSimilares)
+    #print(resultado)
+    return resultado
+    '''cv2.imshow('Firma 1', firma1_rgb)
+    cv2.imshow('Firma 2', firma2_rgb)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()'''
