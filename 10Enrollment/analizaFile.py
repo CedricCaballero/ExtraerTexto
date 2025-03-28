@@ -24,7 +24,7 @@ import comparaFirma
 ruta = r'C:\Users\ccaballerob\Documents\Proyectos\10-validacion enrollment\documentos'
 rutaSalida = ruta+r'\imagenS'
 #************Arrays de tipos de documentos con sus arrays que lo identifican **************
-arrayTipoDoc = ['Aviso','NSS','CURP','Domicilio','Identifiacion']
+arrayTipoDoc = ['Aviso','NSS','CURP','Domicilio','Identificacion']
 arrayIdentificacion = ['INSTITUTO NACIONAL ELECTORAL','ELECTORAL','VOTAR','CREDENCIAL','INE']
 arrayDomicilio = ['CFE','Suministrador','Servicios Básicos','Electricidad','Comisión Federal']
 arrayCurp = ['SEGOB','ESTADOS UNIDOS MEXICANOS','CONSTANCIA','CLAVE','ÚNICA','Clave:']
@@ -34,7 +34,7 @@ arrayAvisoEnrrollment = ['VISO','AVISO','PRIVACIDAD','COMUNICACIONES  DIGITALES'
 datosNSS = ['AAAA','Número de Seguridad Social:']
 datosCURP = ['Clave:','REGISTRO NACIONAL DE POBLACIÓN']
 datosDomicilio = ['TOTAL A PAGAR:','Comisión Federal de Electricidad']
-datosIdentifiacion = ['NOMBRE','FECHA DE NACIMIENTO']
+datosIdentificacion = ['NOMBRE','FECHA DE NACIMIENTO']
 datosAviso1 = ['Consentimiento','fotografia','Huellas','Yo;']
 datosAviso2 = ['Firma:','Fecha:']
 
@@ -46,13 +46,13 @@ coorTipoDoc = {
     'NSS':[200,20],
     'CURP':[0,90],
     'Domicilio':[0,60],
-    'Identifiacion':[-120,-120]    
+    'Identificacion':[-120,-120]    
 }
 datos_diccionario = {
     'NSS': datosNSS,
     'CURP': datosCURP,
     'Domicilio': datosDomicilio,
-    'Identifiacion': datosIdentifiacion,
+    'Identificacion': datosIdentificacion,
     'Aviso':datosAviso1,
     'Aviso2':datosAviso2
 }
@@ -61,10 +61,12 @@ diccionario_Prueba = {
     'NSS': '01139309726',
     'CURP': 'CABC930627HOCBTDO7',
     'Domicilio': 'Privada Malva Oriente Mz9 Lt6, Tizara Town, C.P. 43816, Tizayuca, Hidalgo.',
-    'Identifiacion': 'Cedric Omar Caballero Bautista',
+    'Identificacion': 'Cedric Omar Caballero Bautista',
     'Aviso':'Cedric Omar Caballero Bautista',
     'Aviso2':'25/03/2025'
 }
+
+
 #************OCR ************************
 pytesseract.pytesseract.tesseract_cmd = r'C:\tesseract\tesseract.exe'
 custom_config = r'--oem 3 --psm 12 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -78,6 +80,7 @@ def readImage(image):
      #printResults(results)
      #exit()
      return results
+
 def readImageTesseract(image):
      return  pytesseract.image_to_string(image,lang='spa',config=custom_config)
 
@@ -191,7 +194,7 @@ def datoRequerido(resultClasificacion,resultText,img):
                     break
                 banImpar += 1
             else:
-                if resultClasificacion[0] == 'Identifiacion':
+                if resultClasificacion[0] == 'Identificacion':
                     #print('ban:',banImpar)
                     if ((banImpar % 2 != 0 or banImpar == 6) and banImpar != 5):
                         boxAux.append(bbox)
@@ -303,14 +306,33 @@ def pdf_to_images(pdf_path,nombre,output_folder):
     
 #*****************Comparar extraccion con referencia***********
 def actualizar_estatus(row):
-    if row['Referencia'].strip() != 'FIRMA':
-        if row['Referencia'].strip() == row['Extracción'].strip():
-            return 'Aceptado'
-        else:
-            return 'Rechazado'
-    else:
+    if row['Referencia'].strip() == 'FIRMA':
         return row['Estatus'].strip()
+    else:
+        if row['Documento'].strip() == 'Domicilio':
+            return row['Estatus'].strip()
+        else:
+            if row['Referencia'].strip() == row['Extracción'].strip():
+                return 'Aceptado'
+            else:
+                return 'Rechazado'
 
+#*****************Funciones, diccionarios y vareiables para domicilio ********************
+def estandarizar(lista, diccionario):
+    lista_estandarizada = []
+    for palabra in lista:
+        # Verificar si la palabra tiene una equivalencia en el diccionario
+        estandarizada = [key for key, value in diccionario.items() if palabra == value]
+        lista_estandarizada.append(estandarizada[0] if estandarizada else palabra)
+    return lista_estandarizada
+
+aceptacionDomicilio = 70.0
+abreviaturas = {
+    'PRIVADA': 'PRIV',
+    'HIDALGO': 'HGO',
+    'TIZAYUCA': 'TIZAYUCAC',
+    'FRACCIONAMIENTO': 'FRACC',
+}
 #******************Inicia el proceso *******************
 archivos = listar_archivos(ruta+r'\documentosE')
 # Imprimir la lista de archivos
@@ -320,7 +342,7 @@ for archivo, tipo, nombre in archivos:
     if tipo == 'PDF':
         resultado = pdf_to_images(archivo,nombre,rutaSalida)
         todosResultados.append(resultado)
-        #print(resultado)
+        print(resultado)
     else:
         image = Image.open(archivo)
         resIma = imagen_gris(image)
@@ -366,25 +388,55 @@ for res in todosResultados:
                     estatus.append('Rechazado')
             index += 1
     else:
-        doc.append(res[0])
-        referencia.append(diccionario_Prueba.get(res[0],[]))
-        aux = res[1]
-        extraccion.append(aux[0])
-        presicion.append(aux[1])
-        if aux[1]> 95.0:
-            estatus.append('Aprovado')
-        else:
-            estatus.append('Rechazado')
+        if (res[0] == "Domicilio"):
+            doc.append(res[0])
+            reemplazos = str.maketrans({',': ' ', '.': ' '})
+            domicilio_ref = diccionario_Prueba.get(res[0],[]).translate(reemplazos).strip()
+            domicilio_ref = domicilio_ref.upper()
+            domicilio_ref = [elemento for elemento in domicilio_ref.split(' ') if elemento]
+            referencia.append(diccionario_Prueba.get(res[0],[]))
+            domicilio_Ext = res[1][0].translate(reemplazos).strip()
+            domicilio_Ext = domicilio_Ext.upper()
+            domicilio_Ext = [elemento for elemento in domicilio_Ext.split(' ') if elemento]
 
-resultFirma = comparaFirma.main()
-doc.append('Aviso')
-referencia.append('FIRMA')
-extraccion.append(resultFirma[1])
-presicion.append(resultFirma[0])
-if resultFirma[1] == 'Valida':
-    estatus.append('Aceptado')
-else:
-    estatus.append('Rechazado')
+            # Estandarizar ambos arrays
+            domicilio_ref_estandarizado = set(estandarizar(domicilio_ref, abreviaturas))
+            domicilio_Ext_estandarizado = set(estandarizar(domicilio_Ext, abreviaturas))
+
+            # Contar elementos iguales
+            iguales = domicilio_ref_estandarizado.intersection(domicilio_Ext_estandarizado)
+            cantidad_iguales = len(iguales)
+
+            # Calcular porcentaje de similitud
+            total_elementos = len(domicilio_ref_estandarizado.union(domicilio_Ext_estandarizado))
+            porcentaje_similitud = (cantidad_iguales / total_elementos) * 100
+            extraccion.append(res[1][0])
+            presicion.append(f"{porcentaje_similitud:.2f}")
+            if porcentaje_similitud> aceptacionDomicilio:
+                estatus.append('Aceptado')
+            else:
+                estatus.append('Rechazado')
+        else:
+            doc.append(res[0])
+            referencia.append(diccionario_Prueba.get(res[0],[]))
+            aux = res[1]
+            extraccion.append(aux[0])
+            presicion.append(aux[1])
+            if aux[1]> 95.0:
+                estatus.append('Aceptado')
+            else:
+                estatus.append('Rechazado')
+
+if 'Aviso' in doc:
+    resultFirma = comparaFirma.main()
+    doc.append('Aviso')
+    referencia.append('FIRMA')
+    extraccion.append(resultFirma[1])
+    presicion.append(resultFirma[0])
+    if resultFirma[1] == 'Valida':
+        estatus.append('Aceptado')
+    else:
+        estatus.append('Rechazado')
 
 conjuntoDatos = {
     'Documento':doc,
