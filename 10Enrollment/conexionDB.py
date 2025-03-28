@@ -15,9 +15,21 @@ class ConexionBaseDatos:
         except cx_Oracle.Error as error:
             print("Error al conectarse:", error)
             return False
-
-    def ejecutar_query(self, query, parametros=None):
+    def construir_query(self,query, parametros):
         try:
+            for key, value in parametros.items():
+                if isinstance(value, str):
+                    value = f"'{value}'"  # Agrega comillas para strings
+                query = query.replace(f":{key}", value)
+            return query
+        except Exception as e:
+            print(f"Error al construir el query: {e}")
+            return None
+
+    def ejecutar_query(self, query,tabla, parametros=None):
+        try:
+            query = query.replace(":TABLE", tabla)
+            #print(self.construir_query(query,parametros))
             if parametros:
                 self.cursor.execute(query, parametros)
             else:

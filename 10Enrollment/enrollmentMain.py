@@ -21,7 +21,11 @@ if __name__ == "__main__":
     conec = db.conectar()
     print(conec)
     if conec:
-        resultado = db.ejecutar_query("SELECT DISTINCT (PENDING_OPERATION) FROM APPENROLLMENT.PERSON p")
+        tabla = "APPENROLLMENT.PERSON"
+        query = "SELECT DISTINCT (PENDING_OPERATION) FROM :TABLE p"
+        parametros = None
+        resultado = db.ejecutar_query(query=query,tabla=tabla,parametros=parametros)
+        print(resultado)
         for fila in resultado:
             print(fila)
         db.cerrar_conexion()
