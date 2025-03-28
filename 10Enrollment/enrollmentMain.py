@@ -6,6 +6,7 @@ from datosDomicilio import DatosDomicilio
 from datosNSS import DatosNSS
 from datosCurp import DatosCurp
 from datosAviso import DatosAviso
+from conexionDB import ConexionBaseDatos
 #************Ruta Ruta *******************
 ruta = r'C:\Users\ccaballerob\Documents\Proyectos\10-validacion enrollment\documentos\documentosE'
 rutaSalida = ruta+r'\imagenS'
@@ -14,16 +15,29 @@ todosResultados = []
 
 
 if __name__ == "__main__":
+
+    #Creamos la conexion de base de datos
+    db = ConexionBaseDatos()
+    conec = db.conectar()
+    print(conec)
+    if conec:
+        resultado = db.ejecutar_query("SELECT DISTINCT (PENDING_OPERATION) FROM APPENROLLMENT.PERSON p")
+        for fila in resultado:
+            print(fila)
+        db.cerrar_conexion()
+
+    exit()
+
     Docs = Documentos(pathFile=ruta)
     list_Docs = Docs.listar_archivos()
     clasificados = ClasificarDocumentos(list_docs=list_Docs,ruta_salida=rutaSalida)
     clasificadosRes = clasificados.ClasificarDocs()
     #print(clasificadosRes)
-    print(len(clasificadosRes))
+    #print(len(clasificadosRes))
     datosReturn = []
     ##*************************Ontener los datos de cada documento dependiendo la clasificación********
     for clasificacion in clasificadosRes:
-        print(clasificacion[0][0][0])
+        #print(clasificacion[0][0][0])
         resultIdentificacion = None
         if (clasificacion[0][0][0] == 'Identificacion'):
             Identificacion = DatosIdentificacion(clasificacion=clasificacion)
