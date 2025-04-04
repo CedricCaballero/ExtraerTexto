@@ -25,7 +25,7 @@ ruta = r'C:\Users\ccaballerob\Documents\Proyectos\10-validacion enrollment\docum
 rutaSalida = ruta+r'\imagenS'
 #************Arrays de tipos de documentos con sus arrays que lo identifican **************
 arrayTipoDoc = ['Aviso','NSS','CURP','Domicilio','Identificacion']
-arrayIdentificacion = ['INSTITUTO NACIONAL ELECTORAL','ELECTORAL','VOTAR','CREDENCIAL','INE']
+arrayIdentificacion = ['INSTITUTO NACIONAL ELECTORAL','CREDENCIAL PARA VOTAR','ELECTORAL','VOTAR','CREDENCIAL','INE']
 arrayDomicilio = ['CFE','Suministrador','Servicios Básicos','Electricidad','Comisión Federal']
 arrayCurp = ['SEGOB','ESTADOS UNIDOS MEXICANOS','CONSTANCIA','CLAVE','ÚNICA','Clave:']
 arrayNSS = ['Instiluto Mexicano del Seguro Sucial','Seguro','Sucial','Social','IMSS','Curp']
@@ -195,6 +195,8 @@ def datoRequerido(resultClasificacion,resultText,img):
                 banImpar += 1
             else:
                 if resultClasificacion[0] == 'Identificacion':
+                    print("Entro")
+                    print(txt)
                     #print('ban:',banImpar)
                     if ((banImpar % 2 != 0 or banImpar == 6) and banImpar != 5):
                         boxAux.append(bbox)
@@ -252,6 +254,7 @@ def datoRequerido(resultClasificacion,resultText,img):
                         cont = 0
                         break
         if txt in datos_diccionario.get(resultClasificacion[0], []):
+            print(txt)
             boxAux.append(bbox)
             cont += 1
     #mostrarImagen(img=img,boxAux=boxAux,texto=texto,px=posicionTextoCoor[0],py=posicionTextoCoor[1])
@@ -264,7 +267,7 @@ def clasificar_documento(result):
     tipoDoc['NSS'] = buscaCoincidencias(result=result,array=arrayNSS)
     tipoDoc['CURP'] = buscaCoincidencias(result=result,array=arrayCurp)
     tipoDoc['Domicilio'] = buscaCoincidencias(result=result,array=arrayDomicilio)
-    tipoDoc['Identifiacion'] = buscaCoincidencias(result=result,array=arrayIdentificacion)
+    tipoDoc['Identificacion'] = buscaCoincidencias(result=result,array=arrayIdentificacion)
     #print(tipoDoc)
     resSuma = None
     classDoc = []
@@ -338,7 +341,7 @@ archivos = listar_archivos(ruta+r'\documentosE')
 # Imprimir la lista de archivos
 todosResultados = []
 for archivo, tipo, nombre in archivos:
-    #print(f'***************{nombre}************')
+    print(f'***************{nombre}************')
     if tipo == 'PDF':
         resultado = pdf_to_images(archivo,nombre,rutaSalida)
         todosResultados.append(resultado)
@@ -420,6 +423,7 @@ for res in todosResultados:
             doc.append(res[0])
             referencia.append(diccionario_Prueba.get(res[0],[]))
             aux = res[1]
+            #if (len(aux) > 0):
             extraccion.append(aux[0])
             presicion.append(aux[1])
             if aux[1]> 95.0:

@@ -2,7 +2,7 @@
 class DatosNSS:
     def __init__(self, clasificacion):
         self.clasificacion = clasificacion
-        self.datosNSS = ['AAAA','Número de Seguridad Social:']
+        self.datosNSS = ['AAAA','Número de Seguridad Social:','NSS:']
         self.datos_diccionario = {
             'NSS': self.datosNSS
         }
@@ -24,6 +24,7 @@ class DatosNSS:
         resultClasificacionA = self.clasificacion[0][0][0]
         resultText = self.clasificacion[0][1]
         for bbox, txt, prob in resultText:
+            #print(txt)
             if cont == 2:
                 if resultClasificacionA == 'NSS':
                     valorResultado.append(txt)

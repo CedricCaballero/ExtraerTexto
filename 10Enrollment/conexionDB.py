@@ -15,6 +15,7 @@ class ConexionBaseDatos:
         except cx_Oracle.Error as error:
             print("Error al conectarse:", error)
             return False
+    
     def construir_query(self,query, parametros):
         try:
             for key, value in parametros.items():
@@ -25,7 +26,7 @@ class ConexionBaseDatos:
         except Exception as e:
             print(f"Error al construir el query: {e}")
             return None
-
+        
     def ejecutar_query(self, query,tabla, parametros=None):
         try:
             query = query.replace(":TABLE", tabla)
@@ -35,7 +36,8 @@ class ConexionBaseDatos:
             else:
                 self.cursor.execute(query)
             self.connection.commit()
-            return self.cursor.fetchall()
+            column_names = [col[0] for col in self.cursor.description]
+            return (column_names,self.cursor.fetchall())
         except cx_Oracle.Error as error:
             print(f"Error al ejecutar el query: {error}")
             return None

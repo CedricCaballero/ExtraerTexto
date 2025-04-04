@@ -39,7 +39,7 @@ class RecortarINE:
                     # Obtener las coordenadas del rectángulo
                     x, y, ancho, alto = cv2.boundingRect(aproximacion)
                     # Dibujar el rectángulo en la imagen
-                    ###cv2.rectangle(imagen, (x-10, y-10), (x+ancho+20, y+alto+20), (0, 255, 0), 4)  # Verde y grosor 2 px
+                    cv2.rectangle(self.imagen, (x-10, y-10), (x+ancho+20, y+alto+20), (0, 255, 0), 4)  # Verde y grosor 2 px
                     # **Recortar el rectángulo de la imagen**
                     recorte = self.imagen[y-10:y + alto+20, x-10:x + ancho+20]  # Recorte usando slicing
                     recortes.append(recorte)

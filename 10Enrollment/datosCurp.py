@@ -2,7 +2,7 @@
 class DatosCurp:
     def __init__(self, clasificacion):
         self.clasificacion = clasificacion
-        self.datosCURP = ['Clave:','REGISTRO NACIONAL DE POBLACIÓN']
+        self.datosCURP = ['Clave:','REGISTRO NACIONAL DE POBLACIÓN','REGISTRO NACIONAL DE POBLACION']
         self.coorTipoDoc = {
             'CURP':[0,90]   
         }
@@ -25,6 +25,7 @@ class DatosCurp:
         resultClasificacionA = self.clasificacion[0][0][0]
         resultText = self.clasificacion[0][1]
         for bbox, txt, prob in resultText:
+            #print(txt)
             if cont == 2:
                 if resultClasificacionA == 'CURP':
                     valorResultado.append(txt)

@@ -5,9 +5,10 @@ from readImage import readImage
 from rectanguloINE import RecortarINE
 import cv2
 class ClasificarDocumentos:
-    def __init__(self,list_docs,ruta_salida):
+    def __init__(self,list_docs,ruta_salida,archivo=None):
         self.rutaSalida = ruta_salida
         self.archivos = list_docs
+        self.archivo = archivo
         #self.resultadoClasificacion = []
         self.todosResultados = []
         self.resultText = None
@@ -36,12 +37,14 @@ class ClasificarDocumentos:
                 resIma = resImaA.imagen_gris()
                 self.resultText = readImage(resIma).read_Image()
                 resultClasificacion = self.clasificar_documento()
+                #print(len(self.resultText))
                 #print(resultClasificacion)
-                if 'Identificacion' in resultClasificacion:
+                '''if 'Identificacion' in resultClasificacion:
+                    print('es iden')
                     imaINE = RecortarINE(resIma)
                     imaINEA = imaINE.Recorta()
                     resIma = imaINEA[1]
-                    self.resultText = readImage(resIma).read_Image()
+                    self.resultText = readImage(resIma).read_Image()'''
                 
                 '''cv2.imshow(f'Recorte ', resIma)
                 #cv2.imwrite(f'recorte_{rectangulosEncontrados}.jpg', recorte)
