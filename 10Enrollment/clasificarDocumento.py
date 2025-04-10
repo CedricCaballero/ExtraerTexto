@@ -92,10 +92,10 @@ class ClasificarDocumentos:
     
     def ClasificarDocs(self):
         for archivo, tipo, nombre in self.archivos:
-            #print(f'***************{nombre}************')
+            print(f'***************{nombre}************')
             if tipo == 'PDF':
                 #self.pdf_to_images(archivo,nombre)
-                self.todosResultados.append(self.pdf_to_images(archivo,nombre))
+                self.todosResultados.append((self.pdf_to_images(archivo,nombre),nombre))
                 #print(self.todosResultados)
             else:
                 image = Image.open(archivo)

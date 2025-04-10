@@ -40,11 +40,12 @@ exit()'''
 def convertir_a_rgb(imagen):
     return cv2.cvtColor(imagen,  cv2.COLOR_GRAY2RGB)
 
-def main():
+def main(firmaAviso, firmaIdentificacion):
     # Cargar las imágenes de las firmas
-    firma1 = cv2.imread(r'.\imagen\redimensionadas\fcf3.jpeg', cv2.IMREAD_GRAYSCALE)
-    firma2 = cv2.imread(r'.\imagen\redimensionadas\fcf2.jpeg', cv2.IMREAD_GRAYSCALE)
-
+    #firma1 = cv2.imread(r'.\imagen\redimensionadas\fcf3.jpeg', cv2.IMREAD_GRAYSCALE)
+    #firma2 = cv2.imread(r'.\imagen\redimensionadas\fcf2.jpeg', cv2.IMREAD_GRAYSCALE)
+    firma1 = firmaAviso
+    firma2 = firmaIdentificacion
     # Convertir la imagen a RGB
     firma1_rgb = convertir_a_rgb(firma1)
     firma2_rgb = convertir_a_rgb(firma2)
@@ -79,7 +80,7 @@ def main():
     resultado = []
     resultado.append(f'{porcentaje_similitud:.2f}%')
     #print(f"Porcentaje de similitud: {porcentaje_similitud:.2f}%")
-
+    print("Si las valido")
     umbral = 1000  # Umbral de distancia para determinar si las firmas son similares
     resSimilares = ''
     if distancia < umbral:

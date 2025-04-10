@@ -1,3 +1,4 @@
+import cv2
 
 class DatosAviso:
     def __init__(self, clasificacion):
@@ -16,6 +17,8 @@ class DatosAviso:
         factor = 10 ** decimales
         return int(valor * factor) / factor
     
+    def getClasificacion(self):
+        return self.clasificacion
     #****************Extra informacion solicitada **************
     def datoRequerido(self):
         valorResultado = []
@@ -51,6 +54,29 @@ class DatosAviso:
                         if cont2 >= 2:
                             cont2 += 1
                     if txt in self.datos_diccionario.get('Aviso2'):
+                        if txt == 'Firma:':
+                            imagen_np = self.clasificacion[0][2]
+                            rect_x0 = None
+                            rect_y0 = None
+                            rect_x1 = None
+                            rect_y1 = None
+                            
+                            rect_coords = [(int(coord[0]), int(coord[1])) for coord in bbox]
+                            incrementox0 = 40
+                            incrementoy0 = 90
+                            incrementox = 550
+                            incrementoy = 50
+                            # Definir el rectángulo utilizando las coordenadas
+                            rect_x0 = min(coord[0] for coord in rect_coords) + incrementox0
+                            rect_y0 = min(coord[1] for coord in rect_coords) - incrementoy0
+                            rect_x1 = max(coord[0] for coord in rect_coords) + incrementox
+                            rect_y1 = max(coord[1] for coord in rect_coords) + incrementoy
+                            self.clasificacion[0][2] = imagen_np[rect_y0:rect_y1, rect_x0:rect_x1]
+                            '''cv2.rectangle(imagen_np, (rect_x0, rect_y0), (rect_x1, rect_y1), (0, 0, 255), 5)
+                            cv2.imshow("Imagen con Rectángulo", imagen_np)
+                            cv2.imshow("Imagen con Rectángulo", self.clasificacion[0][2])
+                            cv2.waitKey(0)'''
+                            
                         boxAux.append(bbox)
                         cont2 += 1
             if txt in self.datos_diccionario.get(resultClasificacionA, []):

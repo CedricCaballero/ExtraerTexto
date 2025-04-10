@@ -2,7 +2,8 @@
 class DatosCurp:
     def __init__(self, clasificacion):
         self.clasificacion = clasificacion
-        self.datosCURP = ['Clave:','REGISTRO NACIONAL DE POBLACIÓN','REGISTRO NACIONAL DE POBLACION']
+        #self.datosCURP = ['Clave:','REGISTRO NACIONAL DE POBLACIÓN','REGISTRO NACIONAL DE POBLACION']
+        self.datosCURP = ['Clave:','ESTADOS UNIDOS MEXICANOS']
         self.coorTipoDoc = {
             'CURP':[0,90]   
         }
