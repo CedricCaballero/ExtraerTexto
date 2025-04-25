@@ -68,8 +68,8 @@ diccionario_Prueba = {
 
 
 #************OCR ************************
-pytesseract.pytesseract.tesseract_cmd = r'C:\tesseract\tesseract.exe'
-custom_config = r'--oem 3 --psm 12 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+#pytesseract.pytesseract.tesseract_cmd = r'C:\tesseract\tesseract.exe'
+#custom_config = r'--oem 3 --psm 12 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 # Crea un lector especificando el idioma
 reader = easyocr.Reader(['es'],gpu=True)
 
