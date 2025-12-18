@@ -2,9 +2,6 @@
 import pandas as pd
 import os
 import cv2
-import json
-from pathlib import Path
-
 from obtenerDocumentos import Documentos
 from clasificarDocumento import ClasificarDocumentos
 from datosIdentificacion import DatosIdentificacion
@@ -14,7 +11,6 @@ from datosCurp import DatosCurp
 from datosAviso import DatosAviso
 from conexionDB import ConexionBaseDatos
 from comparacionResultados import comparacionResultados
-
 #************Ruta Ruta *******************
 ruta = r'C:\Users\ccaballerob\Documents\Proyectos\10-validacion enrollment\documentos\documentosE'
 rutaSalida = ruta+r'\imagenS'

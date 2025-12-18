@@ -82,15 +82,16 @@ class DatosIdentificacion:
         
         resultClasificacionA = self.clasificacion[0][0][0]
         resultText = self.clasificacion[0][1]
-        #print(len(resultText))
+        
         for bbox, txt, prob in resultText:
-            #print(txt)
+            
             if cont == 1:
                 if resultClasificacionA == 'Identificacion':
                     if (banImpar < len(resultText)):
-                        boxAux.append(bbox)
-                        valorConcat += txt + ' '
-                    if(banImpar == len(resultText) - 1):
+                        if txt != 'DOMICILIO':
+                            boxAux.append(bbox)
+                            valorConcat += txt + ' '
+                    if((banImpar == len(resultText) - 1) or (txt == 'DOMICILIO')):
                         valorResultado.append(valorConcat.rstrip(' '))
                         probA = prob * 100
                         valorResultado.append(self.redondeo_personalizado(probA, 2))
@@ -106,7 +107,7 @@ class DatosIdentificacion:
                 cont += 1
         #mostrarImagen(img=img,boxAux=boxAux,texto=texto,px=posicionTextoCoor[0],py=posicionTextoCoor[1])
         #Obtener el tipo de INE que Es
-        
+
         cont1 = 0
         cont2 = 0
         banIdmex = 0
@@ -133,13 +134,14 @@ class DatosIdentificacion:
             tipo = 1
         else:
             tipo = 2
-
+        
         #**************  
         for bbox, txt, prob in resultText2:
             if resultClasificacionA == 'Identificacion':
                 textoIdmex = txt.replace(' ','')
                 if 'CURP' in textoIdmex:
                     if tipo == 2:
+                        print("entra tipo 2")
                         bboxFirma1 = bbox
                         #banIdmex = 1
             if cont >= 1:
@@ -155,20 +157,40 @@ class DatosIdentificacion:
                         valorConcat2 += textoIdmex + '$'
                         banIdmex += 1
                     if banIdmex == 4:
-                        '''valorResultado.append(valorConcat.rstrip(' '))
+                        valorResultado.append(valorConcat.rstrip(' '))
                         probA = prob * 100
                         valorResultado.append(self.redondeo_personalizado(probA, 2))
                         texto = f'{resultClasificacionA}:{valorConcat} con un {self.redondeo_personalizado(probA, 2)} % de precisión'
                         x,y = self.coorTipoDoc.get(resultClasificacionA, [])
                         posicionTextoCoor.append(x)
                         posicionTextoCoor.append(y)
-                        cont = 0'''
+                        cont = 0
                         break
             if txt in self.datos_diccionario.get('INE', []):
                 boxAux.append(bbox)
                 cont += 1
-        
+        print(tipo)
+        if not bboxFirma1:
+            print("Esta vacio")
+            return valorResultado
+            
+        '''cv2.imshow("Imagen con Rectángulo", self.imagenOriginal[0][2])
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()'''
         rect_coords = [(int(coord[0]), int(coord[1])) for coord in bboxFirma1]
+        '''print(rect_coords)
+        pt1 = (979, 459)
+        pt2 = (1665, 495)
+
+        # Dibuja el rectángulo sobre la imagen
+        imagen_con_rectangulo = self.imagenOriginal[0][2].copy()
+        cv2.rectangle(imagen_con_rectangulo, pt1, pt2, color=(0, 255, 0), thickness=2)'''
+
+        # Muestra la imagen con el rectángulo
+        '''cv2.imshow("Imagen con Rectángulo", imagen_con_rectangulo)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()'''
+
         if tipo == 1:
             incrementox0 = 200
             incrementoy0 = 235
@@ -180,13 +202,31 @@ class DatosIdentificacion:
             incrementox = 70
             incrementoy = -110
         # Definir el rectángulo utilizando las coordenadas
-        rect_x0 = min(coord[0] for coord in rect_coords) + (incrementox0)
+        '''rect_x0 = min(coord[0] for coord in rect_coords) + (incrementox0)
         rect_y0 = min(coord[1] for coord in rect_coords) - (incrementoy0)
         rect_x1 = max(coord[0] for coord in rect_coords) - (incrementox)
-        rect_y1 = max(coord[1] for coord in rect_coords) - (incrementoy)
-        imageFirma = imageFirma[rect_y0:rect_y1, rect_x0:rect_x1]
+        rect_y1 = max(coord[1] for coord in rect_coords) - (incrementoy)'''
 
+        rect_x0 = min(coord[0] for coord in rect_coords) + incrementox0
+        rect_x1 = max(coord[0] for coord in rect_coords) - incrementox
+        if rect_x0 > rect_x1:
+            rect_x0, rect_x1 = rect_x1, rect_x0  # intercambia si están invertidos
+
+        rect_y0 = min(coord[1] for coord in rect_coords) - incrementoy0
+        rect_y1 = max(coord[1] for coord in rect_coords) - incrementoy
+        if rect_y0 > rect_y1:
+            rect_y0, rect_y1 = rect_y1, rect_y0
+
+
+        
+        imageFirma = imageFirma[rect_y0:rect_y1, rect_x0:rect_x1]
+        '''cv2.imshow("Imagen con Rectángulo", imageFirma)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()'''
+
+        
         recorte = RecortadorFirma()
+        
         recorteFirma = recorte.recortar_firma(imagen_gris=imageFirma)
 
         valorResultado.append(recorteFirma)

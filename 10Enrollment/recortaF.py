@@ -20,13 +20,15 @@ class RecortadorFirma:
         margen_h = 0.1
         margen_hsuperior = 0.16
         
-
+        '''cv2.imshow("Imagen con Rectángulo", imagen_gris)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()'''
         # Aplicar un umbral para resaltar los bordes
         _, umbral = cv2.threshold(imagen_gris, 128, 255, cv2.THRESH_BINARY_INV)
 
         # Encontrar contornos
         contornos, _ = cv2.findContours(umbral, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
+        
         # Identificar el contorno más grande
         contorno_mayor = max(contornos, key=cv2.contourArea)
 

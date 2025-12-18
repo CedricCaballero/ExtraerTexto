@@ -17,4 +17,4 @@ def reducir_imagen(input_path, output_path, tamaño_objetivo_kb):
     print(f"Imagen optimizada a {tamaño_actual_kb:.2f} KB")
 
 # Ejemplo de uso
-reducir_imagen('C:\\Users\\ccaballerob\\Downloads\\Leopoldo.jpeg', 'C:\\Users\\ccaballerob\\Downloads\\Leopoldo2.jpeg', 100)
+reducir_imagen('C:\\Users\\ccaballerob\\Downloads\\foto Joshua.jpeg', 'C:\\Users\\ccaballerob\\Downloads\\foto Joshua2.jpeg', 100)

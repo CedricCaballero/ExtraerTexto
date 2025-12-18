@@ -152,12 +152,12 @@ def mostrarImagen(img,boxAux,texto,px,py):
         #draw.rectangle([rect_x0, rect_y0, rect_x1, rect_y1], outline="red", width=5)
         #img.show()
         cv2.rectangle(imagen_np, (rect_x0, rect_y0), (rect_x1, rect_y1), (0, 0, 255), 5)
-        cv2.imshow("Imagen con Rectángulo", imagen_np)
+        cv2.imshow("Imagen con Rectánguloooo", imagen_np)
         cv2.waitKey(0)
     posicion_texto = (rect_x0+px, rect_y0+py)  # Coordenadas (x, y) para la posición del texto
     font = cv2.FONT_HERSHEY_SIMPLEX
     cv2.putText(imagen_np, texto, posicion_texto, font, 1, (255, 0, 0), 2, cv2.LINE_AA)
-    cv2.imshow("Imagen con Rectángulo", imagen_np)
+    cv2.imshow("Imagen con Rectánguloooo", imagen_np)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
